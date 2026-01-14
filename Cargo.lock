@@ -263,6 +263,7 @@ checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
 [[package]]
 name = "formcalc"
 version = "0.1.0"
+source = "git+https://github.com/victorgreggio/formcalc?branch=main#9aaefdbdab8af708427c3e0a42000f569a196fe4"
 dependencies = [
  "chrono",
  "rayon",
