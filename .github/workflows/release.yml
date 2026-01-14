@@ -53,6 +53,10 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      
       - name: Build release
         run: cargo build --release --target ${{ matrix.target }}
       

@@ -21,6 +21,10 @@ jobs:
         with:
           components: rustfmt, clippy
       
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      
       - name: Cache cargo registry
         uses: actions/cache@v4
         with:
@@ -64,6 +68,10 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      
       - name: Cache cargo build
         uses: actions/cache@v4
         with:
@@ -93,6 +101,10 @@ jobs:
       
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+      
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
       
       - name: Build
         run: cargo build --release --verbose
