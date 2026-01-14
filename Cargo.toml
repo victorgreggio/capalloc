@@ -1,0 +1,12 @@
+[package]
+name = "capalloc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+formcalc = { path = "../formcalc" }
+csv = "1.3"
+serde = { version = "1.0", features = ["derive"] }
+rayon = "1.10"
+ratatui = "0.29"
+crossterm = "0.28"
