@@ -1,6 +1,6 @@
 # Capital Allocation Optimizer
 
-[![CI](https://github.com/yourusername/capalloc/workflows/CI/badge.svg)](https://github.com/yourusername/capalloc/actions)
+[![CI](https://github.com/victorgreggio/capalloc/workflows/CI/badge.svg)](https://github.com/victorgreggio/capalloc/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-blue.svg)](https://www.rust-lang.org)
 
