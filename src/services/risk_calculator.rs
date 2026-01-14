@@ -48,12 +48,12 @@ impl RiskCalculationService {
             "pof_post_action".to_string(),
             Value::Number(asset.pof_post_action),
         );
-        engine.set_variable(
-            "cof_total".to_string(),
-            Value::Number(asset.cof_total_usd),
-        );
+        engine.set_variable("cof_total".to_string(), Value::Number(asset.cof_total_usd));
         engine.set_variable("is_critical".to_string(), Value::Bool(asset.is_critical()));
-        engine.set_variable("is_high_risk".to_string(), Value::Bool(asset.is_high_risk()));
+        engine.set_variable(
+            "is_high_risk".to_string(),
+            Value::Bool(asset.is_high_risk()),
+        );
     }
 
     /// Extract calculation results from the engine
@@ -132,7 +132,7 @@ mod tests {
         let asset = create_test_asset();
 
         let result = service.calculate(&asset).unwrap();
-        
+
         // Risk reduction should equal baseline - post action
         let expected = result.baseline_risk - result.post_action_risk;
         assert!((result.risk_reduction - expected).abs() < 0.01);
@@ -142,7 +142,7 @@ mod tests {
     fn test_critical_asset_multiplier() {
         let formula_repo = Box::new(InMemoryFormulaRepository::new());
         let service = RiskCalculationService::new(formula_repo);
-        
+
         let mut normal_asset = create_test_asset();
         normal_asset.safety_risk_level = "Low".to_string();
         let normal_result = service.calculate(&normal_asset).unwrap();
@@ -162,7 +162,7 @@ mod tests {
         let asset = create_test_asset();
 
         let result = service.calculate(&asset).unwrap();
-        
+
         // ROI should be risk_reduction / adjusted_cost (which includes time value and complexity adjustments)
         // Just verify it's a positive number and reasonable
         assert!(result.roi > 0.0);

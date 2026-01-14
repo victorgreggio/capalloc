@@ -1,1 +1,28 @@
+# Rust
 /target
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+assets_large.csv
+assets_4k.csv
+assets_test.csv
+assets_large_backup.csv
+assets_small.csv
+*.csv.bak
+
+# Logs
+*.log
+

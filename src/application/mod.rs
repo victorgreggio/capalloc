@@ -1,6 +1,6 @@
 use crate::domain::{Asset, OptimizationResult};
 use crate::repository::{AssetRepository, FormulaRepository};
-use crate::services::RiskCalculationService;
+use crate::services::{OptimizationSolution, PortfolioOptimizer, RiskCalculationService};
 use rayon::prelude::*;
 use std::error::Error;
 use std::time::{Duration, Instant};
@@ -9,6 +9,7 @@ use std::time::{Duration, Instant};
 pub struct CapitalAllocationApp {
     repository: Box<dyn AssetRepository + Send + Sync>,
     calculator: RiskCalculationService,
+    optimizer: PortfolioOptimizer,
 }
 
 impl CapitalAllocationApp {
@@ -19,6 +20,7 @@ impl CapitalAllocationApp {
         Self {
             repository,
             calculator: RiskCalculationService::new(formula_repository),
+            optimizer: PortfolioOptimizer::new(),
         }
     }
 
@@ -28,10 +30,7 @@ impl CapitalAllocationApp {
     }
 
     /// Calculate risk metrics for all assets in parallel
-    pub fn calculate_all_risks(
-        &self,
-        assets: Vec<Asset>,
-    ) -> (Vec<OptimizationResult>, Duration) {
+    pub fn calculate_all_risks(&self, assets: Vec<Asset>) -> (Vec<OptimizationResult>, Duration) {
         let start = Instant::now();
 
         let results: Vec<OptimizationResult> = assets
@@ -47,6 +46,36 @@ impl CapitalAllocationApp {
     #[allow(dead_code)]
     pub fn calculate_risk(&self, asset: &Asset) -> Result<OptimizationResult, Box<dyn Error>> {
         self.calculator.calculate(asset)
+    }
+
+    /// Optimize portfolio under budget constraint
+    pub fn optimize_portfolio(
+        &self,
+        results: &[OptimizationResult],
+        budget: f64,
+    ) -> Result<OptimizationSolution, Box<dyn Error>> {
+        self.optimizer.optimize(results, budget)
+    }
+
+    /// Optimize portfolio using priority score
+    pub fn optimize_by_priority(
+        &self,
+        results: &[OptimizationResult],
+        budget: f64,
+    ) -> Result<OptimizationSolution, Box<dyn Error>> {
+        self.optimizer.optimize_by_priority(results, budget)
+    }
+
+    /// Optimize portfolio using combined objective (weighted risk + priority)
+    pub fn optimize_combined(
+        &self,
+        results: &[OptimizationResult],
+        budget: f64,
+        risk_weight: f64,
+        priority_weight: f64,
+    ) -> Result<OptimizationSolution, Box<dyn Error>> {
+        self.optimizer
+            .optimize_combined(results, budget, risk_weight, priority_weight)
     }
 }
 

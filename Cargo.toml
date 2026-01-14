@@ -2,6 +2,13 @@
 name = "capalloc"
 version = "0.1.0"
 edition = "2021"
+authors = ["Capital Allocation Optimizer Contributors"]
+description = "Risk-based capital allocation optimizer with linear programming and interactive TUI"
+repository = "https://github.com/yourusername/capalloc"
+license = "MIT"
+keywords = ["optimization", "linear-programming", "portfolio", "risk-management", "tui"]
+categories = ["command-line-utilities", "algorithms", "mathematics"]
+readme = "README.md"
 
 [dependencies]
 formcalc = { path = "../formcalc" }
@@ -10,3 +17,19 @@ serde = { version = "1.0", features = ["derive"] }
 rayon = "1.10"
 ratatui = "0.29"
 crossterm = "0.28"
+minilp = "0.2.2"
+
+[[bin]]
+name = "capalloc"
+path = "src/main.rs"
+
+[[bin]]
+name = "generate_data"
+path = "src/bin/generate_data.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+

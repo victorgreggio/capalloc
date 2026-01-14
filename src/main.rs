@@ -23,15 +23,22 @@ use std::{error::Error, io, time::Duration};
 use ui::AppState;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Check for benchmark mode
+    // Check for benchmark mode and budget
     let args: Vec<String> = std::env::args().collect();
     let benchmark_mode =
         args.contains(&"--benchmark".to_string()) || args.contains(&"-b".to_string());
 
+    // Parse budget if provided
+    let budget = args
+        .iter()
+        .position(|a| a == "--budget" || a == "-B")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|b| b.parse::<f64>().ok());
+
     // Initialize application with CSV repository and formula repository
-    let asset_repository = Box::new(CsvAssetRepository::new("assets.csv".to_string()));
+    let applicant_repository = Box::new(CsvAssetRepository::new("assets.csv".to_string()));
     let formula_repository = Box::new(InMemoryFormulaRepository::new());
-    let app = CapitalAllocationApp::new(asset_repository, formula_repository);
+    let app = CapitalAllocationApp::new(applicant_repository, formula_repository);
 
     // Load assets from repository
     let assets = app.load_assets()?;
@@ -73,11 +80,144 @@ fn main() -> Result<(), Box<dyn Error>> {
         total_time.as_secs_f64() * 1000.0 / results.len() as f64
     );
 
+    // Run optimization if budget is provided
+    if let Some(budget_amount) = budget {
+        println!("\n=== PORTFOLIO OPTIMIZATION (Linear Programming) ===");
+        println!("Budget constraint: ${:.2}", budget_amount);
+        println!("Using minilp solver for optimal solution");
+
+        let opt_start = std::time::Instant::now();
+
+        // Strategy 1: Maximize risk reduction
+        match app.optimize_portfolio(&results, budget_amount) {
+            Ok(solution) => {
+                let opt_time = opt_start.elapsed();
+                println!("\n--- Strategy 1: Maximize Risk Reduction ---");
+                println!("Selected {} alternatives", solution.num_assets_optimized);
+                println!("Total cost: ${:.2}", solution.total_cost);
+                println!(
+                    "Total risk reduction: ${:.2}",
+                    solution.total_risk_reduction
+                );
+                println!("Total priority score: {:.4}", solution.total_priority_score);
+                println!(
+                    "Optimization time: {:.2}ms",
+                    opt_time.as_secs_f64() * 1000.0
+                );
+
+                if solution.num_assets_optimized <= 10 {
+                    println!("\nSelected alternatives:");
+                    for alt in &solution.selected_alternatives {
+                        println!("  - {}", alt);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Optimization error: {}", e),
+        }
+
+        // Strategy 2: Maximize priority score
+        let opt_start = std::time::Instant::now();
+        match app.optimize_by_priority(&results, budget_amount) {
+            Ok(solution) => {
+                let opt_time = opt_start.elapsed();
+                println!("\n--- Strategy 2: Maximize Priority Score ---");
+                println!("Selected {} alternatives", solution.num_assets_optimized);
+                println!("Total cost: ${:.2}", solution.total_cost);
+                println!(
+                    "Total risk reduction: ${:.2}",
+                    solution.total_risk_reduction
+                );
+                println!("Total priority score: {:.4}", solution.total_priority_score);
+                println!(
+                    "Optimization time: {:.2}ms",
+                    opt_time.as_secs_f64() * 1000.0
+                );
+
+                if solution.num_assets_optimized <= 10 {
+                    println!("\nSelected alternatives:");
+                    for alt in &solution.selected_alternatives {
+                        println!("  - {}", alt);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Priority optimization error: {}", e),
+        }
+
+        // Strategy 3: Combined weighted objective
+        let opt_start = std::time::Instant::now();
+        match app.optimize_combined(&results, budget_amount, 0.6, 0.4) {
+            Ok(solution) => {
+                let opt_time = opt_start.elapsed();
+                println!("\n--- Strategy 3: Combined (60% Risk, 40% Priority) ---");
+                println!("Selected {} alternatives", solution.num_assets_optimized);
+                println!("Total cost: ${:.2}", solution.total_cost);
+                println!(
+                    "Total risk reduction: ${:.2}",
+                    solution.total_risk_reduction
+                );
+                println!("Total priority score: {:.4}", solution.total_priority_score);
+                println!(
+                    "Optimization time: {:.2}ms",
+                    opt_time.as_secs_f64() * 1000.0
+                );
+
+                if solution.num_assets_optimized <= 10 {
+                    println!("\nSelected alternatives:");
+                    for alt in &solution.selected_alternatives {
+                        println!("  - {}", alt);
+                    }
+                }
+            }
+            Err(e) => eprintln!("Combined optimization error: {}", e),
+        }
+    }
+
     // If in benchmark mode, exit without launching UI
     if benchmark_mode {
         println!("\nBenchmark complete!");
         return Ok(());
     }
+
+    // Run all three optimizations for UI if budget provided
+    let optimization_results = if let Some(budget_amount) = budget {
+        println!("\nRunning all three optimization strategies for UI display...");
+
+        let risk_solution = app.optimize_portfolio(&results, budget_amount).ok();
+        let priority_solution = app.optimize_by_priority(&results, budget_amount).ok();
+        let combined_solution = app
+            .optimize_combined(&results, budget_amount, 0.6, 0.4)
+            .ok();
+
+        if risk_solution.is_some() || priority_solution.is_some() || combined_solution.is_some() {
+            println!(
+                "Risk Strategy: {} selected",
+                risk_solution
+                    .as_ref()
+                    .map(|s| s.num_assets_optimized)
+                    .unwrap_or(0)
+            );
+            println!(
+                "Priority Strategy: {} selected",
+                priority_solution
+                    .as_ref()
+                    .map(|s| s.num_assets_optimized)
+                    .unwrap_or(0)
+            );
+            println!(
+                "Combined Strategy: {} selected",
+                combined_solution
+                    .as_ref()
+                    .map(|s| s.num_assets_optimized)
+                    .unwrap_or(0)
+            );
+            Some((risk_solution, priority_solution, combined_solution))
+        } else {
+            eprintln!("Warning: All optimizations failed");
+            None
+        }
+    } else {
+        None
+    };
 
     // Setup terminal
     enable_raw_mode()?;
@@ -87,7 +227,24 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut terminal = Terminal::new(backend)?;
 
     // Create UI state and run
-    let mut state = AppState::new(results, total_time);
+    let mut state = if let Some((risk_sol, priority_sol, combined_sol)) = optimization_results {
+        AppState::with_optimization(
+            results,
+            total_time,
+            risk_sol
+                .map(|s| s.selected_alternatives)
+                .unwrap_or_default(),
+            priority_sol
+                .map(|s| s.selected_alternatives)
+                .unwrap_or_default(),
+            combined_sol
+                .map(|s| s.selected_alternatives)
+                .unwrap_or_default(),
+            budget.unwrap(),
+        )
+    } else {
+        AppState::new(results, total_time)
+    };
     let res = run_ui(&mut terminal, &mut state);
 
     // Restore terminal
