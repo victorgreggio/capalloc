@@ -6,6 +6,9 @@
 
 A sophisticated risk-based capital allocation optimizer demonstrating the `formcalc` formula engine's advanced capabilities with a terminal user interface (TUI) built with `ratatui`.
 
+## Screenshot
+![alt text](image.png)
+
 ## Features
 
 - **Advanced Formula Engine**: 13 interdependent formulas using complex mathematical functions
