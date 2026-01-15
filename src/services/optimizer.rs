@@ -302,7 +302,9 @@ mod tests {
             create_test_result("TANK_003", "Refurbish", 20000.0, 60000.0, 6.0),
         ];
 
-        let solution = optimizer.optimize_by_risk_reduction(&results, 30000.0).unwrap();
+        let solution = optimizer
+            .optimize_by_risk_reduction(&results, 30000.0)
+            .unwrap();
 
         assert!(solution.total_cost <= 30000.0);
         assert!(solution.num_assets_optimized > 0);
@@ -342,7 +344,9 @@ mod tests {
             create_test_result("VALVE_002", "Expensive", 5000.0, 50000.0, 5.0),
         ];
 
-        let solution = optimizer.optimize_by_risk_reduction(&results, 5000.0).unwrap();
+        let solution = optimizer
+            .optimize_by_risk_reduction(&results, 5000.0)
+            .unwrap();
 
         // Should select the one with higher risk reduction
         assert!(solution.total_risk_reduction >= 50000.0);

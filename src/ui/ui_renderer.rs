@@ -226,7 +226,10 @@ fn render_summary_view(result: &RiskCalculationResult) -> Vec<Line<'_>> {
     ]
 }
 
-fn render_expanded_view<'a>(result: &'a RiskCalculationResult, state: &'a AppState) -> Vec<Line<'a>> {
+fn render_expanded_view<'a>(
+    result: &'a RiskCalculationResult,
+    state: &'a AppState,
+) -> Vec<Line<'a>> {
     let avg_time = state.total_time.as_secs_f64() * 1000.0 / state.results.len() as f64;
     let is_risk = state.is_selected_by_risk(result);
     let is_priority = state.is_selected_by_priority(result);

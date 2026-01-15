@@ -30,7 +30,10 @@ impl CapitalAllocationApp {
     }
 
     /// Calculate risk metrics for all assets in parallel
-    pub fn calculate_all_risks(&self, assets: Vec<Asset>) -> (Vec<RiskCalculationResult>, Duration) {
+    pub fn calculate_all_risks(
+        &self,
+        assets: Vec<Asset>,
+    ) -> (Vec<RiskCalculationResult>, Duration) {
         let start = Instant::now();
 
         let results: Vec<RiskCalculationResult> = assets
