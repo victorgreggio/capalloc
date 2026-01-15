@@ -1,9 +1,9 @@
-use crate::domain::OptimizationResult;
+use crate::domain::RiskCalculationResult;
 use std::collections::HashSet;
 use std::time::Duration;
 
 pub struct AppState {
-    pub results: Vec<OptimizationResult>,
+    pub results: Vec<RiskCalculationResult>,
     pub display_order: Vec<usize>, // Indices into results for display order
     pub total_time: Duration,
     pub selected: usize, // Index into display_order
@@ -16,7 +16,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(results: Vec<OptimizationResult>, total_time: Duration) -> Self {
+    pub fn new(results: Vec<RiskCalculationResult>, total_time: Duration) -> Self {
         let display_order: Vec<usize> = (0..results.len()).collect();
         Self {
             results,
@@ -32,7 +32,7 @@ impl AppState {
     }
 
     pub fn with_optimization(
-        results: Vec<OptimizationResult>,
+        results: Vec<RiskCalculationResult>,
         total_time: Duration,
         risk_alternatives: Vec<String>,
         priority_alternatives: Vec<String>,
@@ -81,7 +81,7 @@ impl AppState {
         }
     }
 
-    pub fn is_selected_by_risk(&self, result: &OptimizationResult) -> bool {
+    pub fn is_selected_by_risk(&self, result: &RiskCalculationResult) -> bool {
         let key = format!(
             "{} ({})",
             result.asset.asset_id, result.asset.alternative_id
@@ -89,7 +89,7 @@ impl AppState {
         self.risk_selected.contains(&key)
     }
 
-    pub fn is_selected_by_priority(&self, result: &OptimizationResult) -> bool {
+    pub fn is_selected_by_priority(&self, result: &RiskCalculationResult) -> bool {
         let key = format!(
             "{} ({})",
             result.asset.asset_id, result.asset.alternative_id
@@ -97,7 +97,7 @@ impl AppState {
         self.priority_selected.contains(&key)
     }
 
-    pub fn is_selected_by_combined(&self, result: &OptimizationResult) -> bool {
+    pub fn is_selected_by_combined(&self, result: &RiskCalculationResult) -> bool {
         let key = format!(
             "{} ({})",
             result.asset.asset_id, result.asset.alternative_id
@@ -106,7 +106,7 @@ impl AppState {
     }
 
     #[allow(dead_code)]
-    pub fn is_selected_by_any(&self, result: &OptimizationResult) -> bool {
+    pub fn is_selected_by_any(&self, result: &RiskCalculationResult) -> bool {
         self.is_selected_by_risk(result)
             || self.is_selected_by_priority(result)
             || self.is_selected_by_combined(result)
@@ -136,7 +136,7 @@ impl AppState {
         self.expanded = !self.expanded;
     }
 
-    pub fn get_selected(&self) -> Option<&OptimizationResult> {
+    pub fn get_selected(&self) -> Option<&RiskCalculationResult> {
         self.display_order
             .get(self.selected)
             .and_then(|&idx| self.results.get(idx))

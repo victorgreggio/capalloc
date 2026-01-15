@@ -1,4 +1,4 @@
-use crate::domain::{Asset, OptimizationResult};
+use crate::domain::{Asset, RiskCalculationResult};
 use crate::repository::{AssetRepository, FormulaRepository};
 use crate::services::{OptimizationSolution, PortfolioOptimizer, RiskCalculationService};
 use rayon::prelude::*;
@@ -30,10 +30,10 @@ impl CapitalAllocationApp {
     }
 
     /// Calculate risk metrics for all assets in parallel
-    pub fn calculate_all_risks(&self, assets: Vec<Asset>) -> (Vec<OptimizationResult>, Duration) {
+    pub fn calculate_all_risks(&self, assets: Vec<Asset>) -> (Vec<RiskCalculationResult>, Duration) {
         let start = Instant::now();
 
-        let results: Vec<OptimizationResult> = assets
+        let results: Vec<RiskCalculationResult> = assets
             .par_iter()
             .filter_map(|asset| self.calculator.calculate(asset).ok())
             .collect();
@@ -44,23 +44,23 @@ impl CapitalAllocationApp {
 
     /// Calculate risk metrics for a single asset
     #[allow(dead_code)]
-    pub fn calculate_risk(&self, asset: &Asset) -> Result<OptimizationResult, Box<dyn Error>> {
+    pub fn calculate_risk(&self, asset: &Asset) -> Result<RiskCalculationResult, Box<dyn Error>> {
         self.calculator.calculate(asset)
     }
 
-    /// Optimize portfolio under budget constraint
-    pub fn optimize_portfolio(
+    /// Optimize portfolio by maximizing risk reduction
+    pub fn optimize_by_risk_reduction(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
     ) -> Result<OptimizationSolution, Box<dyn Error>> {
-        self.optimizer.optimize(results, budget)
+        self.optimizer.optimize_by_risk_reduction(results, budget)
     }
 
     /// Optimize portfolio using priority score
     pub fn optimize_by_priority(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
     ) -> Result<OptimizationSolution, Box<dyn Error>> {
         self.optimizer.optimize_by_priority(results, budget)
@@ -69,7 +69,7 @@ impl CapitalAllocationApp {
     /// Optimize portfolio using combined objective (weighted risk + priority)
     pub fn optimize_combined(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
         risk_weight: f64,
         priority_weight: f64,

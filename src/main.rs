@@ -1,5 +1,5 @@
 // Domain-Driven Design and SOLID Principles Applied
-// - Domain: Models representing core business entities (Asset, Alternative, OptimizationResult)
+// - Domain: Models representing core business entities (Asset, Alternative, RiskCalculationResult)
 // - Services: Business logic for capital allocation optimization
 // - Repository: Data access abstraction
 // - Application: Use case orchestration
@@ -89,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let opt_start = std::time::Instant::now();
 
         // Strategy 1: Maximize risk reduction
-        match app.optimize_portfolio(&results, budget_amount) {
+        match app.optimize_by_risk_reduction(&results, budget_amount) {
             Ok(solution) => {
                 let opt_time = opt_start.elapsed();
                 println!("\n--- Strategy 1: Maximize Risk Reduction ---");
@@ -182,7 +182,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let optimization_results = if let Some(budget_amount) = budget {
         println!("\nRunning all three optimization strategies for UI display...");
 
-        let risk_solution = app.optimize_portfolio(&results, budget_amount).ok();
+        let risk_solution = app.optimize_by_risk_reduction(&results, budget_amount).ok();
         let priority_solution = app.optimize_by_priority(&results, budget_amount).ok();
         let combined_solution = app
             .optimize_combined(&results, budget_amount, 0.6, 0.4)

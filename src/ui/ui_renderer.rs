@@ -1,4 +1,4 @@
-use crate::domain::OptimizationResult;
+use crate::domain::RiskCalculationResult;
 use crate::ui::AppState;
 use ratatui::{
     layout::Rect,
@@ -43,19 +43,19 @@ pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
             if state.optimization_budget.is_some() {
                 // Risk strategy column
                 spans.push(Span::styled(
-                    if is_risk { " *" } else { "  " },
+                    if is_risk { " R" } else { "  " },
                     Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
                 ));
                 // Priority strategy column
                 spans.push(Span::styled(
-                    if is_priority { " *" } else { "  " },
+                    if is_priority { " P" } else { "  " },
                     Style::default()
                         .fg(Color::Yellow)
                         .add_modifier(Modifier::BOLD),
                 ));
                 // Combined strategy column
                 spans.push(Span::styled(
-                    if is_combined { " *" } else { "  " },
+                    if is_combined { " C" } else { "  " },
                     Style::default()
                         .fg(Color::Green)
                         .add_modifier(Modifier::BOLD),
@@ -121,7 +121,7 @@ pub fn render_details(f: &mut Frame, state: &AppState, area: Rect) {
     }
 }
 
-fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
+fn render_summary_view(result: &RiskCalculationResult) -> Vec<Line<'_>> {
     vec![
         Line::from(""),
         Line::from(vec![
@@ -226,7 +226,7 @@ fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
     ]
 }
 
-fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState) -> Vec<Line<'a>> {
+fn render_expanded_view<'a>(result: &'a RiskCalculationResult, state: &'a AppState) -> Vec<Line<'a>> {
     let avg_time = state.total_time.as_secs_f64() * 1000.0 / state.results.len() as f64;
     let is_risk = state.is_selected_by_risk(result);
     let is_priority = state.is_selected_by_priority(result);
@@ -247,13 +247,13 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
 
             if is_risk {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Red)),
+                    Span::styled("  R ", Style::default().fg(Color::Red)),
                     Span::styled("Risk Reduction Strategy", Style::default().fg(Color::Red)),
                 ]));
             }
             if is_priority {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Yellow)),
+                    Span::styled("  P ", Style::default().fg(Color::Yellow)),
                     Span::styled(
                         "Priority Score Strategy",
                         Style::default().fg(Color::Yellow),
@@ -262,7 +262,7 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
             }
             if is_combined {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Green)),
+                    Span::styled("  C ", Style::default().fg(Color::Green)),
                     Span::styled(
                         "Combined Strategy (60% Risk, 40% Priority)",
                         Style::default().fg(Color::Green),
