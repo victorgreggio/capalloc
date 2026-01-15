@@ -10,13 +10,7 @@ use ratatui::{
 
 fn format_money(value: f64) -> String {
     let abs_value = value.abs();
-    let formatted = if abs_value >= 1_000_000.0 {
-        format!("{:.2}", abs_value)
-    } else if abs_value >= 1_000.0 {
-        format!("{:.2}", abs_value)
-    } else {
-        format!("{:.2}", abs_value)
-    };
+    let formatted = format!("{:.2}", abs_value);
 
     let parts: Vec<&str> = formatted.split('.').collect();
     let integer_part = parts[0];
