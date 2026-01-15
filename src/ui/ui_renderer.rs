@@ -8,6 +8,33 @@ use ratatui::{
     Frame,
 };
 
+fn format_money(value: f64) -> String {
+    let abs_value = value.abs();
+    let formatted = if abs_value >= 1_000_000.0 {
+        format!("{:.2}", abs_value)
+    } else if abs_value >= 1_000.0 {
+        format!("{:.2}", abs_value)
+    } else {
+        format!("{:.2}", abs_value)
+    };
+    
+    let parts: Vec<&str> = formatted.split('.').collect();
+    let integer_part = parts[0];
+    let decimal_part = if parts.len() > 1 { parts[1] } else { "00" };
+    
+    let mut result = String::new();
+    for (i, ch) in integer_part.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(ch);
+    }
+    
+    let formatted_integer: String = result.chars().rev().collect();
+    let sign = if value < 0.0 { "-" } else { "" };
+    format!("{}{}.{}", sign, formatted_integer, decimal_part)
+}
+
 pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
     let items: Vec<ListItem> = state
         .display_order
@@ -69,9 +96,9 @@ pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
 
     let title = if state.optimization_budget.is_some() {
         format!(
-            " Asset Alternatives ({}) | Budget: ${:.0} | R=Risk P=Priority C=Combined ",
+            " Asset Alternatives ({}) | Budget: ${} | R=Risk P=Priority C=Combined ",
             state.results.len(),
-            state.optimization_budget.unwrap(),
+            format_money(state.optimization_budget.unwrap()).trim_end_matches(".00"),
         )
     } else {
         format!(
@@ -168,7 +195,7 @@ fn render_summary_view(result: &RiskCalculationResult) -> Vec<Line<'_>> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::styled(
-                format!("${:.2}", result.asset.cost_usd),
+                format!("${}", format_money(result.asset.cost_usd)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
@@ -178,7 +205,7 @@ fn render_summary_view(result: &RiskCalculationResult) -> Vec<Line<'_>> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::styled(
-                format!("${:.2}", result.risk_reduction),
+                format!("${}", format_money(result.risk_reduction)),
                 Style::default().fg(Color::Green),
             ),
         ]),
@@ -325,14 +352,14 @@ fn render_expanded_view<'a>(
         Line::from(vec![
             Span::raw("Investment Cost: "),
             Span::styled(
-                format!("${:>12.2}", result.asset.cost_usd),
+                format!("${:>15}", format_money(result.asset.cost_usd)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("CoF (Total):     "),
             Span::styled(
-                format!("${:>12.2}", result.asset.cof_total_usd),
+                format!("${:>15}", format_money(result.asset.cof_total_usd)),
                 Style::default().fg(Color::Red),
             ),
         ]),
@@ -360,21 +387,21 @@ fn render_expanded_view<'a>(
         Line::from(vec![
             Span::raw("Baseline Risk:   "),
             Span::styled(
-                format!("${:>12.2}", result.baseline_risk),
+                format!("${:>15}", format_money(result.baseline_risk)),
                 Style::default().fg(Color::Red),
             ),
         ]),
         Line::from(vec![
             Span::raw("Post-Action Risk:"),
             Span::styled(
-                format!("${:>12.2}", result.post_action_risk),
+                format!("${:>15}", format_money(result.post_action_risk)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("Risk Reduction:  "),
             Span::styled(
-                format!("${:>12.2}", result.risk_reduction),
+                format!("${:>15}", format_money(result.risk_reduction)),
                 Style::default()
                     .fg(Color::Green)
                     .add_modifier(Modifier::BOLD),
