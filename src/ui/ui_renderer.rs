@@ -17,11 +17,11 @@ fn format_money(value: f64) -> String {
     } else {
         format!("{:.2}", abs_value)
     };
-    
+
     let parts: Vec<&str> = formatted.split('.').collect();
     let integer_part = parts[0];
     let decimal_part = if parts.len() > 1 { parts[1] } else { "00" };
-    
+
     let mut result = String::new();
     for (i, ch) in integer_part.chars().rev().enumerate() {
         if i > 0 && i % 3 == 0 {
@@ -29,7 +29,7 @@ fn format_money(value: f64) -> String {
         }
         result.push(ch);
     }
-    
+
     let formatted_integer: String = result.chars().rev().collect();
     let sign = if value < 0.0 { "-" } else { "" };
     format!("{}{}.{}", sign, formatted_integer, decimal_part)
