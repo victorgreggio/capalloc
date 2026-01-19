@@ -171,7 +171,10 @@ The UI will:
   2. Priority Score Maximization
   3. Combined Strategy (60% risk, 40% priority)
 - Sort **selected alternatives to the TOP**
-- Show **asterisks (*)** in colored columns (R, P, C) indicating which strategies selected each alternative
+- Show **colored letters (R, P, C)** in columns indicating which strategies selected each alternative:
+  - **R** (Red) = Selected by Risk Reduction Strategy
+  - **P** (Yellow) = Selected by Priority Score Strategy
+  - **C** (Green) = Selected by Combined Strategy
 - Display budget and optimization legend in header
 - Allow comparing strategy differences interactively
 - Allow browsing all alternatives with optimization context
@@ -264,11 +267,11 @@ When running with `--budget` flag, the UI shows all three optimization strategie
 ```
 ┌ Asset Alternatives (17) | Budget: $150000 | R=Risk P=Priority C=Combined ───────────┐
 │ Asset ID             Alternative        R  P  C                                      │
-│ PUMP_001            Inspect            *    *    ← Selected by Risk & Combined       │
-│ VALVE_002           Do_Nothing         * * *     ← Selected by ALL strategies        │
-│ COMPRESSOR_003      Repair             * * *     ← Selected by ALL strategies        │
-│ TANK_004            Repair             *    *    ← Selected by Risk & Combined       │
-│ PIPE_005            Repair             *    *    ← Selected by Risk & Combined       │
+│ PUMP_001            Inspect            R    C    ← Selected by Risk & Combined       │
+│ VALVE_002           Do_Nothing         R P C     ← Selected by ALL strategies        │
+│ COMPRESSOR_003      Repair             R P C     ← Selected by ALL strategies        │
+│ TANK_004            Repair             R    C    ← Selected by Risk & Combined       │
+│ PIPE_005            Repair             R    C    ← Selected by Risk & Combined       │
 │ ...                                               ← More alternatives                 │
 │ PUMP_001            Do_Nothing                   ← Not selected by any              │
 │ VALVE_002           Inspect                      ← Not selected by any              │
@@ -276,9 +279,9 @@ When running with `--budget` flag, the UI shows all three optimization strategie
 ```
 
 **Color Legend:**
-- **Red asterisk (*)** = Risk Reduction Strategy
-- **Yellow asterisk (*)** = Priority Score Strategy  
-- **Green asterisk (*)** = Combined Strategy (60% Risk, 40% Priority)
+- **Red R** = Risk Reduction Strategy
+- **Yellow P** = Priority Score Strategy  
+- **Green C** = Combined Strategy (60% Risk, 40% Priority)
 
 ### Right Panel (Expanded View)
 - Complete asset information

@@ -1,4 +1,4 @@
-use crate::domain::{Asset, OptimizationResult};
+use crate::domain::{Asset, RiskCalculationResult};
 use crate::repository::FormulaRepository;
 use formcalc::{Engine, Value};
 use std::error::Error;
@@ -15,7 +15,7 @@ impl RiskCalculationService {
     }
 
     /// Calculate risk metrics for a single asset alternative
-    pub fn calculate(&self, asset: &Asset) -> Result<OptimizationResult, Box<dyn Error>> {
+    pub fn calculate(&self, asset: &Asset) -> Result<RiskCalculationResult, Box<dyn Error>> {
         let start = Instant::now();
 
         let mut engine = Engine::new();
@@ -27,7 +27,7 @@ impl RiskCalculationService {
         let result = self.extract_results(&engine)?;
         let calculation_time_ms = start.elapsed().as_secs_f64() * 1000.0;
 
-        Ok(OptimizationResult::new(
+        Ok(RiskCalculationResult::new(
             asset.clone(),
             result.baseline_risk,
             result.post_action_risk,

@@ -1,5 +1,5 @@
 // Domain-Driven Design and SOLID Principles Applied
-// - Domain: Models representing core business entities (Asset, Alternative, OptimizationResult)
+// - Domain: Models representing core business entities (Asset, Alternative, RiskCalculationResult)
 // - Services: Business logic for capital allocation optimization
 // - Repository: Data access abstraction
 // - Application: Use case orchestration
@@ -21,6 +21,27 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 use repository::{CsvAssetRepository, InMemoryFormulaRepository};
 use std::{error::Error, io, time::Duration};
 use ui::AppState;
+
+fn format_money(value: f64) -> String {
+    let abs_value = value.abs();
+    let formatted = format!("{:.2}", abs_value);
+
+    let parts: Vec<&str> = formatted.split('.').collect();
+    let integer_part = parts[0];
+    let decimal_part = if parts.len() > 1 { parts[1] } else { "00" };
+
+    let mut result = String::new();
+    for (i, ch) in integer_part.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(ch);
+    }
+
+    let formatted_integer: String = result.chars().rev().collect();
+    let sign = if value < 0.0 { "-" } else { "" };
+    format!("{}{}.{}", sign, formatted_integer, decimal_part)
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Check for benchmark mode and budget
@@ -83,21 +104,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Run optimization if budget is provided
     if let Some(budget_amount) = budget {
         println!("\n=== PORTFOLIO OPTIMIZATION (Linear Programming) ===");
-        println!("Budget constraint: ${:.2}", budget_amount);
+        println!("Budget constraint: ${}", format_money(budget_amount));
         println!("Using minilp solver for optimal solution");
 
         let opt_start = std::time::Instant::now();
 
         // Strategy 1: Maximize risk reduction
-        match app.optimize_portfolio(&results, budget_amount) {
+        match app.optimize_by_risk_reduction(&results, budget_amount) {
             Ok(solution) => {
                 let opt_time = opt_start.elapsed();
                 println!("\n--- Strategy 1: Maximize Risk Reduction ---");
                 println!("Selected {} alternatives", solution.num_assets_optimized);
-                println!("Total cost: ${:.2}", solution.total_cost);
+                println!("Total cost: ${}", format_money(solution.total_cost));
                 println!(
-                    "Total risk reduction: ${:.2}",
-                    solution.total_risk_reduction
+                    "Total risk reduction: ${}",
+                    format_money(solution.total_risk_reduction)
                 );
                 println!("Total priority score: {:.4}", solution.total_priority_score);
                 println!(
@@ -122,10 +143,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let opt_time = opt_start.elapsed();
                 println!("\n--- Strategy 2: Maximize Priority Score ---");
                 println!("Selected {} alternatives", solution.num_assets_optimized);
-                println!("Total cost: ${:.2}", solution.total_cost);
+                println!("Total cost: ${}", format_money(solution.total_cost));
                 println!(
-                    "Total risk reduction: ${:.2}",
-                    solution.total_risk_reduction
+                    "Total risk reduction: ${}",
+                    format_money(solution.total_risk_reduction)
                 );
                 println!("Total priority score: {:.4}", solution.total_priority_score);
                 println!(
@@ -150,10 +171,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let opt_time = opt_start.elapsed();
                 println!("\n--- Strategy 3: Combined (60% Risk, 40% Priority) ---");
                 println!("Selected {} alternatives", solution.num_assets_optimized);
-                println!("Total cost: ${:.2}", solution.total_cost);
+                println!("Total cost: ${}", format_money(solution.total_cost));
                 println!(
-                    "Total risk reduction: ${:.2}",
-                    solution.total_risk_reduction
+                    "Total risk reduction: ${}",
+                    format_money(solution.total_risk_reduction)
                 );
                 println!("Total priority score: {:.4}", solution.total_priority_score);
                 println!(
@@ -182,7 +203,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let optimization_results = if let Some(budget_amount) = budget {
         println!("\nRunning all three optimization strategies for UI display...");
 
-        let risk_solution = app.optimize_portfolio(&results, budget_amount).ok();
+        let risk_solution = app.optimize_by_risk_reduction(&results, budget_amount).ok();
         let priority_solution = app.optimize_by_priority(&results, budget_amount).ok();
         let combined_solution = app
             .optimize_combined(&results, budget_amount, 0.6, 0.4)

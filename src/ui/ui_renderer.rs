@@ -1,4 +1,4 @@
-use crate::domain::OptimizationResult;
+use crate::domain::RiskCalculationResult;
 use crate::ui::AppState;
 use ratatui::{
     layout::Rect,
@@ -7,6 +7,27 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap},
     Frame,
 };
+
+fn format_money(value: f64) -> String {
+    let abs_value = value.abs();
+    let formatted = format!("{:.2}", abs_value);
+
+    let parts: Vec<&str> = formatted.split('.').collect();
+    let integer_part = parts[0];
+    let decimal_part = if parts.len() > 1 { parts[1] } else { "00" };
+
+    let mut result = String::new();
+    for (i, ch) in integer_part.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(ch);
+    }
+
+    let formatted_integer: String = result.chars().rev().collect();
+    let sign = if value < 0.0 { "-" } else { "" };
+    format!("{}{}.{}", sign, formatted_integer, decimal_part)
+}
 
 pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
     let items: Vec<ListItem> = state
@@ -43,19 +64,19 @@ pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
             if state.optimization_budget.is_some() {
                 // Risk strategy column
                 spans.push(Span::styled(
-                    if is_risk { " *" } else { "  " },
+                    if is_risk { " R" } else { "  " },
                     Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
                 ));
                 // Priority strategy column
                 spans.push(Span::styled(
-                    if is_priority { " *" } else { "  " },
+                    if is_priority { " P" } else { "  " },
                     Style::default()
                         .fg(Color::Yellow)
                         .add_modifier(Modifier::BOLD),
                 ));
                 // Combined strategy column
                 spans.push(Span::styled(
-                    if is_combined { " *" } else { "  " },
+                    if is_combined { " C" } else { "  " },
                     Style::default()
                         .fg(Color::Green)
                         .add_modifier(Modifier::BOLD),
@@ -69,9 +90,9 @@ pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
 
     let title = if state.optimization_budget.is_some() {
         format!(
-            " Asset Alternatives ({}) | Budget: ${:.0} | R=Risk P=Priority C=Combined ",
+            " Asset Alternatives ({}) | Budget: ${} | R=Risk P=Priority C=Combined ",
             state.results.len(),
-            state.optimization_budget.unwrap(),
+            format_money(state.optimization_budget.unwrap()).trim_end_matches(".00"),
         )
     } else {
         format!(
@@ -121,7 +142,7 @@ pub fn render_details(f: &mut Frame, state: &AppState, area: Rect) {
     }
 }
 
-fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
+fn render_summary_view(result: &RiskCalculationResult) -> Vec<Line<'_>> {
     vec![
         Line::from(""),
         Line::from(vec![
@@ -168,7 +189,7 @@ fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::styled(
-                format!("${:.2}", result.asset.cost_usd),
+                format!("${}", format_money(result.asset.cost_usd)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
@@ -178,7 +199,7 @@ fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
                 Style::default().add_modifier(Modifier::BOLD),
             ),
             Span::styled(
-                format!("${:.2}", result.risk_reduction),
+                format!("${}", format_money(result.risk_reduction)),
                 Style::default().fg(Color::Green),
             ),
         ]),
@@ -226,7 +247,10 @@ fn render_summary_view(result: &OptimizationResult) -> Vec<Line<'_>> {
     ]
 }
 
-fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState) -> Vec<Line<'a>> {
+fn render_expanded_view<'a>(
+    result: &'a RiskCalculationResult,
+    state: &'a AppState,
+) -> Vec<Line<'a>> {
     let avg_time = state.total_time.as_secs_f64() * 1000.0 / state.results.len() as f64;
     let is_risk = state.is_selected_by_risk(result);
     let is_priority = state.is_selected_by_priority(result);
@@ -247,13 +271,13 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
 
             if is_risk {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Red)),
+                    Span::styled("  R ", Style::default().fg(Color::Red)),
                     Span::styled("Risk Reduction Strategy", Style::default().fg(Color::Red)),
                 ]));
             }
             if is_priority {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Yellow)),
+                    Span::styled("  P ", Style::default().fg(Color::Yellow)),
                     Span::styled(
                         "Priority Score Strategy",
                         Style::default().fg(Color::Yellow),
@@ -262,7 +286,7 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
             }
             if is_combined {
                 lines.push(Line::from(vec![
-                    Span::styled("  * ", Style::default().fg(Color::Green)),
+                    Span::styled("  C ", Style::default().fg(Color::Green)),
                     Span::styled(
                         "Combined Strategy (60% Risk, 40% Priority)",
                         Style::default().fg(Color::Green),
@@ -322,14 +346,14 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
         Line::from(vec![
             Span::raw("Investment Cost: "),
             Span::styled(
-                format!("${:>12.2}", result.asset.cost_usd),
+                format!("${:>15}", format_money(result.asset.cost_usd)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("CoF (Total):     "),
             Span::styled(
-                format!("${:>12.2}", result.asset.cof_total_usd),
+                format!("${:>15}", format_money(result.asset.cof_total_usd)),
                 Style::default().fg(Color::Red),
             ),
         ]),
@@ -357,21 +381,21 @@ fn render_expanded_view<'a>(result: &'a OptimizationResult, state: &'a AppState)
         Line::from(vec![
             Span::raw("Baseline Risk:   "),
             Span::styled(
-                format!("${:>12.2}", result.baseline_risk),
+                format!("${:>15}", format_money(result.baseline_risk)),
                 Style::default().fg(Color::Red),
             ),
         ]),
         Line::from(vec![
             Span::raw("Post-Action Risk:"),
             Span::styled(
-                format!("${:>12.2}", result.post_action_risk),
+                format!("${:>15}", format_money(result.post_action_risk)),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("Risk Reduction:  "),
             Span::styled(
-                format!("${:>12.2}", result.risk_reduction),
+                format!("${:>15}", format_money(result.risk_reduction)),
                 Style::default()
                     .fg(Color::Green)
                     .add_modifier(Modifier::BOLD),

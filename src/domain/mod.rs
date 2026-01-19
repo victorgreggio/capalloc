@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_optimization_result_creation() {
         let asset = create_test_asset();
-        let result = OptimizationResult::new(
+        let result = RiskCalculationResult::new(
             asset.clone(),
             25000.0,
             250000.0,
@@ -90,7 +90,7 @@ mod tests {
 
 /// Value object representing the optimization result for a capital investment alternative
 #[derive(Debug, Clone)]
-pub struct OptimizationResult {
+pub struct RiskCalculationResult {
     pub asset: Asset,
     pub baseline_risk: f64,
     pub post_action_risk: f64,
@@ -103,7 +103,7 @@ pub struct OptimizationResult {
     pub calculation_time_ms: f64,
 }
 
-impl OptimizationResult {
+impl RiskCalculationResult {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         asset: Asset,

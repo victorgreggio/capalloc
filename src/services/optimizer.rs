@@ -1,4 +1,4 @@
-use crate::domain::OptimizationResult;
+use crate::domain::RiskCalculationResult;
 use minilp::{ComparisonOp, OptimizationDirection, Problem, Variable};
 use std::collections::HashMap;
 
@@ -27,9 +27,9 @@ impl PortfolioOptimizer {
     ///   - Total cost <= budget
     ///   - At most one alternative per asset (SOS1 constraint)
     ///   - All variables are binary (0 or 1)
-    pub fn optimize(
+    pub fn optimize_by_risk_reduction(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
     ) -> Result<OptimizationSolution, Box<dyn std::error::Error>> {
         if results.is_empty() {
@@ -40,7 +40,7 @@ impl PortfolioOptimizer {
         let mut problem = Problem::new(OptimizationDirection::Maximize);
 
         // Create binary decision variables for each alternative
-        let mut vars: Vec<(Variable, &OptimizationResult)> = Vec::new();
+        let mut vars: Vec<(Variable, &RiskCalculationResult)> = Vec::new();
         for result in results {
             // Binary variable: 1 if selected, 0 otherwise
             // Objective coefficient is the risk reduction
@@ -106,7 +106,7 @@ impl PortfolioOptimizer {
     /// Uses linear programming to find optimal solution
     pub fn optimize_by_priority(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
     ) -> Result<OptimizationSolution, Box<dyn std::error::Error>> {
         if results.is_empty() {
@@ -117,7 +117,7 @@ impl PortfolioOptimizer {
         let mut problem = Problem::new(OptimizationDirection::Maximize);
 
         // Create binary decision variables
-        let mut vars: Vec<(Variable, &OptimizationResult)> = Vec::new();
+        let mut vars: Vec<(Variable, &RiskCalculationResult)> = Vec::new();
         for result in results {
             let var = problem.add_var(result.priority_score, (0.0, 1.0));
             vars.push((var, result));
@@ -178,7 +178,7 @@ impl PortfolioOptimizer {
     /// Allows balancing between risk reduction and priority score
     pub fn optimize_combined(
         &self,
-        results: &[OptimizationResult],
+        results: &[RiskCalculationResult],
         budget: f64,
         risk_weight: f64,
         priority_weight: f64,
@@ -191,7 +191,7 @@ impl PortfolioOptimizer {
         let mut problem = Problem::new(OptimizationDirection::Maximize);
 
         // Create variables with weighted objective
-        let mut vars: Vec<(Variable, &OptimizationResult)> = Vec::new();
+        let mut vars: Vec<(Variable, &RiskCalculationResult)> = Vec::new();
         for result in results {
             // Normalize to similar scales before weighting
             let normalized_risk = result.risk_reduction / 1_000_000.0; // Scale to millions
@@ -271,8 +271,8 @@ mod tests {
         cost: f64,
         risk_reduction: f64,
         priority: f64,
-    ) -> OptimizationResult {
-        OptimizationResult::new(
+    ) -> RiskCalculationResult {
+        RiskCalculationResult::new(
             Asset {
                 asset_id: asset_id.to_string(),
                 alternative_id: alternative.to_string(),
@@ -302,7 +302,9 @@ mod tests {
             create_test_result("CLOUD_MIGRATION_003", "Partial_Implementation", 20000.0, 60000.0, 6.0),
         ];
 
-        let solution = optimizer.optimize(&results, 30000.0).unwrap();
+        let solution = optimizer
+            .optimize_by_risk_reduction(&results, 30000.0)
+            .unwrap();
 
         assert!(solution.total_cost <= 30000.0);
         assert!(solution.num_assets_optimized > 0);
@@ -342,7 +344,9 @@ mod tests {
             create_test_result("DATACENTER_002", "Expensive", 5000.0, 50000.0, 5.0),
         ];
 
-        let solution = optimizer.optimize(&results, 5000.0).unwrap();
+        let solution = optimizer
+            .optimize_by_risk_reduction(&results, 5000.0)
+            .unwrap();
 
         // Should select the one with higher risk reduction
         assert!(solution.total_risk_reduction >= 50000.0);
