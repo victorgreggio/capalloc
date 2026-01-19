@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-/// Domain model representing an asset maintenance alternative
+/// Domain model representing a capital investment alternative
 #[derive(Debug, Clone, Deserialize)]
 pub struct Asset {
     #[serde(rename = "Asset_ID")]
@@ -33,8 +33,8 @@ mod tests {
 
     fn create_test_asset() -> Asset {
         Asset {
-            asset_id: "PUMP_001".to_string(),
-            alternative_id: "Refurbish".to_string(),
+            asset_id: "IT_SYSTEM_001".to_string(),
+            alternative_id: "Pilot_Program".to_string(),
             cost_usd: 45000.0,
             pof_post_action: 0.05,
             cof_total_usd: 500000.0,
@@ -88,7 +88,7 @@ mod tests {
     }
 }
 
-/// Value object representing the optimization result for an asset alternative
+/// Value object representing the optimization result for a capital investment alternative
 #[derive(Debug, Clone)]
 pub struct OptimizationResult {
     pub asset: Asset,

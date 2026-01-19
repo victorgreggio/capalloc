@@ -99,11 +99,11 @@ See [OPTIMIZATION.md](OPTIMIZATION.md) for complete mathematical details and ben
 
 ## Dataset
 
-The `assets.csv` file contains asset maintenance alternatives with:
+The `assets.csv` file contains capital investment alternatives with:
 
-- **Asset Identification**: Asset ID, Alternative ID
-- **Financial Data**: Investment cost, Consequence of Failure (CoF)
-- **Risk Metrics**: Probability of Failure (PoF) after action
+- **Investment Identification**: Investment ID, Alternative ID
+- **Financial Data**: Investment cost, Consequence of Not Investing (CoF)
+- **Risk Metrics**: Probability of Failure (PoF) without action
 - **Safety Classification**: Negligible, Low, Medium, High, Critical
 
 ### Generating Large Datasets
@@ -111,15 +111,15 @@ The `assets.csv` file contains asset maintenance alternatives with:
 Generate test data for performance benchmarking:
 
 ```bash
-# Generate 4,000 alternatives (1,000 assets × 4 alternatives each)
+# Generate 4,000 alternatives (1,000 investments × 4 alternatives each)
 cargo run --release --bin generate_data
 
 # This creates assets_large.csv (~220 KB, 4,001 lines)
-# - 1,000 unique assets across 18 asset types
-# - 4 alternatives per asset (Do_Nothing, Inspect, Repair, Refurbish/Replace)
+# - 1,000 unique investments across 20 investment types
+# - 4 alternatives per investment (Defer, Pilot_Program, Partial_Implementation, Full_Implementation)
 # - Realistic cost distributions ($0 - $500K)
 # - PoF varies by alternative type (0.01 - 0.45)
-# - CoF ranges from $100K - $5M per asset
+# - CoF ranges from $100K - $5M per investment
 # - Deterministic pseudo-random generation for reproducibility
 ```
 
@@ -133,9 +133,9 @@ cargo run --release --bin capalloc -- -b -B 10000000
 
 ```
 Asset_ID,Alternative_ID,Cost_USD,PoF_Post_Action,CoF_Total_USD,Safety_Risk_Level
-PUMP_001,Do_Nothing,0,0.25,500000,High
-PUMP_001,Refurbish,45000,0.05,500000,Low
-PUMP_001,Replace,120000,0.01,500000,Negligible
+IT_SYSTEM_001,Defer,0,0.25,500000,High
+IT_SYSTEM_001,Pilot_Program,45000,0.05,500000,Low
+IT_SYSTEM_001,Full_Implementation,120000,0.01,500000,Negligible
 ```
 
 ## Running the Application

@@ -5,9 +5,9 @@ use std::fs::File;
 fn main() -> Result<(), Box<dyn Error>> {
     println!("Generating large dataset for capital allocation optimizer...");
 
-    let num_assets = 1000;
-    let alternatives_per_asset = 4;
-    let total_alternatives = num_assets * alternatives_per_asset;
+    let num_investments = 1000;
+    let alternatives_per_investment = 4;
+    let total_alternatives = num_investments * alternatives_per_investment;
 
     let file = File::create("assets_large.csv")?;
     let mut writer = Writer::from_writer(file);
@@ -21,36 +21,38 @@ fn main() -> Result<(), Box<dyn Error>> {
         "Safety_Risk_Level",
     ])?;
 
-    let asset_types = vec![
-        "PUMP",
-        "VALVE",
-        "COMPRESSOR",
-        "TANK",
-        "PIPELINE",
-        "HEAT_EXCHANGER",
-        "TURBINE",
-        "BOILER",
-        "REACTOR",
-        "SEPARATOR",
-        "CONDENSER",
-        "FURNACE",
-        "MOTOR",
-        "GENERATOR",
-        "TRANSFORMER",
-        "SWITCH",
-        "VESSEL",
-        "EXCHANGER",
+    let investment_types = vec![
+        "IT_SYSTEM",
+        "DATACENTER",
+        "CLOUD_MIGRATION",
+        "SOFTWARE_LICENSE",
+        "BUILDING_RENOVATION",
+        "FACILITY_EXPANSION",
+        "OFFICE_UPGRADE",
+        "WAREHOUSE",
+        "MARKET_EXPANSION",
+        "PRODUCT_LAUNCH",
+        "RND_PROJECT",
+        "MANUFACTURING_LINE",
+        "ROAD_UPGRADE",
+        "BRIDGE_REPAIR",
+        "POWER_GRID",
+        "WATER_SYSTEM",
+        "TRAINING_PROGRAM",
+        "CYBERSECURITY",
+        "ERP_SYSTEM",
+        "CRM_PLATFORM",
     ];
 
-    let alternatives = ["Do_Nothing", "Inspect", "Repair", "Refurbish", "Replace"];
+    let alternatives = ["Defer", "Pilot_Program", "Partial_Implementation", "Full_Implementation"];
 
     let safety_levels = ["Negligible", "Low", "Medium", "High", "Critical"];
 
     let mut seed = 42u64;
 
-    for asset_num in 0..num_assets {
-        let asset_type = &asset_types[asset_num % asset_types.len()];
-        let asset_id = format!("{}_{:04}", asset_type, asset_num + 1);
+    for inv_num in 0..num_investments {
+        let investment_type = &investment_types[inv_num % investment_types.len()];
+        let asset_id = format!("{}_{:04}", investment_type, inv_num + 1);
 
         seed = (seed * 1103515245 + 12345) & 0x7fffffff;
         let base_cof = 100000.0 + (seed % 5000000) as f64;
@@ -113,11 +115,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             ])?;
         }
 
-        if (asset_num + 1) % 100 == 0 {
+        if (inv_num + 1) % 100 == 0 {
             println!(
-                "Generated {} assets ({} alternatives)...",
-                asset_num + 1,
-                (asset_num + 1) * alternatives_per_asset
+                "Generated {} investments ({} alternatives)...",
+                inv_num + 1,
+                (inv_num + 1) * alternatives_per_investment
             );
         }
     }
@@ -125,8 +127,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     writer.flush()?;
 
     println!(
-        "\n✓ Successfully generated {} alternatives for {} assets",
-        total_alternatives, num_assets
+        "\n✓ Successfully generated {} alternatives for {} investments",
+        total_alternatives, num_investments
     );
     println!("✓ File saved as: assets_large.csv");
 

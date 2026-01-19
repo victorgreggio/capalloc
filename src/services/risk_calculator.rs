@@ -100,8 +100,8 @@ mod tests {
 
     fn create_test_asset() -> Asset {
         Asset {
-            asset_id: "PUMP_001".to_string(),
-            alternative_id: "Refurbish".to_string(),
+            asset_id: "IT_SYSTEM_001".to_string(),
+            alternative_id: "Pilot_Program".to_string(),
             cost_usd: 45000.0,
             pof_post_action: 0.05,
             cof_total_usd: 500000.0,

@@ -6,7 +6,7 @@ This document showcases the advanced formula capabilities used in the Capital Al
 
 The optimizer uses **13 interdependent formulas** with complex mathematical operations:
 
-1. `baseline_risk` - Exponential scaling for high-value assets
+1. `baseline_risk` - Exponential scaling for high-value investments
 2. `safety_multiplier` - Dynamic multiplier with nested conditionals
 3. `criticality_score` - Multi-factor scoring system
 4. `degradation_factor` - Time-based degradation modeling
@@ -38,7 +38,7 @@ max(get_output_from('degradation_factor'), 0.5)
 
 #### `exp()` - Exponential Function
 ```
-// Exponential scaling for high-consequence assets
+// Exponential scaling for high-consequence investments
 if (cof_total > 1000000) then
     return rnd(exp(0.5) * cof_total, 2)
 ```
@@ -210,7 +210,7 @@ end
 - ✅ Division operations (5 occurrences)
 - ✅ Multiplication with weights
 - ✅ Addition for aggregation
-- ✅ Conditional multiplier (1.3x for critical assets)
+- ✅ Conditional multiplier (1.3x for critical investments)
 - ✅ High precision rounding (4 decimal places)
 
 ## Real-World Applications

@@ -9,7 +9,7 @@ The Capital Allocation Optimizer uses **Linear Programming (LP)** to find optima
 The portfolio optimization problem is formulated as a **Binary Integer Linear Program (BILP)**:
 
 ### Decision Variables
-- `x[i,j]` ∈ {0, 1} for each alternative `j` of asset `i`
+- `x[i,j]` ∈ {0, 1} for each alternative `j` of investment `i`
   - 1 if alternative is selected
   - 0 otherwise
 
@@ -40,10 +40,10 @@ where w₁ + w₂ = 1 (typically w₁=0.6, w₂=0.4)
 Σ cost[i,j] × x[i,j] ≤ Budget
 ```
 
-**Asset Selection Constraint (SOS1):**
+**Investment Selection Constraint (SOS1):**
 ```
-Σ x[i,j] ≤ 1  for each asset i
-(at most one alternative per asset)
+Σ x[i,j] ≤ 1  for each investment i
+(at most one alternative per investment)
 ```
 
 **Binary Constraint:**
@@ -89,7 +89,7 @@ Selects alternatives that eliminate the most potential financial risk.
 
 **Example Results (4,000 alternatives, $10M budget):**
 ```
-Selected: 1,000 alternatives (one per asset)
+Selected: 1,000 alternatives (one per investment)
 Total Cost: $9,998,651
 Risk Reduction: $3.94 billion
 Priority Score: 2,131.49
@@ -183,9 +183,9 @@ for alternative in alternatives {
 // Budget constraint
 problem.add_constraint(&cost_coefficients, ComparisonOp::Le, budget);
 
-// One alternative per asset (SOS1)
-for asset_vars in assets {
-    problem.add_constraint(&asset_vars, ComparisonOp::Le, 1.0);
+// One alternative per investment (SOS1)
+for investment_vars in investments {
+    problem.add_constraint(&investment_vars, ComparisonOp::Le, 1.0);
 }
 
 // Solve and extract solution
@@ -200,7 +200,7 @@ Selected alternatives are those with `x[i,j] > 0.5` in the LP solution. For knap
 
 The constraint matrix is **sparse** and **well-structured**:
 - Budget constraint: 1 row, N columns
-- Asset constraints: M rows (one per asset), at most K columns each
+- Investment constraints: M rows (one per investment), at most K columns each
 - Total constraints: 1 + M
 - Sparsity: ~99.9% (for large N)
 
@@ -273,9 +273,9 @@ cargo run --release --bin capalloc -- -b -B 20000000
 
 ## Real-World Application
 
-### Industrial Asset Management
+### Capital Investment Portfolio
 
-**Scenario:** $10M maintenance budget for 1,000 industrial assets
+**Scenario:** $10M capital budget for 1,000 investment opportunities
 
 **Strategy Comparison:**
 

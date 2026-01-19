@@ -122,8 +122,8 @@ mod tests {
     #[test]
     fn test_load_assets() {
         let assets = vec![
-            create_test_asset("PUMP_001", "Refurbish", 45000.0),
-            create_test_asset("PUMP_001", "Replace", 120000.0),
+            create_test_asset("IT_SYSTEM_001", "Pilot_Program", 45000.0),
+            create_test_asset("IT_SYSTEM_001", "Full_Implementation", 120000.0),
         ];
         let app = create_app(assets.clone());
 
@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn test_calculate_risk_single() {
-        let assets = vec![create_test_asset("PUMP_001", "Refurbish", 45000.0)];
+        let assets = vec![create_test_asset("IT_SYSTEM_001", "Pilot_Program", 45000.0)];
         let app = create_app(assets.clone());
 
         let result = app.calculate_risk(&assets[0]).unwrap();
@@ -143,9 +143,9 @@ mod tests {
     #[test]
     fn test_calculate_all_risks() {
         let assets = vec![
-            create_test_asset("PUMP_001", "Refurbish", 45000.0),
-            create_test_asset("VALVE_002", "Repair", 15000.0),
-            create_test_asset("TANK_003", "Replace", 200000.0),
+            create_test_asset("IT_SYSTEM_001", "Pilot_Program", 45000.0),
+            create_test_asset("DATACENTER_002", "Partial_Implementation", 15000.0),
+            create_test_asset("CLOUD_MIGRATION_003", "Full_Implementation", 200000.0),
         ];
         let app = create_app(assets.clone());
 

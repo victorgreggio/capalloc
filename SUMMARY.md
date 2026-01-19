@@ -47,7 +47,7 @@ A comprehensive risk-based capital allocation optimizer demonstrating advanced c
 
 ### Risk Reduction Strategy
 ```
-Selected: 1,000 alternatives (100% asset coverage)
+Selected: 1,000 alternatives (100% investment coverage)
 Total Cost: $9,998,651
 Risk Reduction: $3.94 billion
 Priority Score: 2,131.49
@@ -56,7 +56,7 @@ Solution Time: 703ms
 
 ### Priority Score Strategy
 ```
-Selected: 1,000 alternatives (100% asset coverage)
+Selected: 1,000 alternatives (100% investment coverage)
 Total Cost: $9,985,744
 Risk Reduction: $3.88 billion (-1.5%)
 Priority Score: 2,241.23 (+5.1% better)
@@ -65,7 +65,7 @@ Solution Time: 617ms
 
 ### Combined Strategy (60% Risk, 40% Priority)
 ```
-Selected: 1,000 alternatives (100% asset coverage)
+Selected: 1,000 alternatives (100% investment coverage)
 Total Cost: $9,999,625
 Risk Reduction: $3.92 billion (balanced)
 Priority Score: 2,216.00 (balanced)
@@ -122,7 +122,7 @@ cargo run --release --bin generate_data
 5. ✅ **Linear Programming**: Industry-standard optimization solver
 6. ✅ **Large-Scale Performance**: 4K alternatives in ~3 seconds total
 7. ✅ **Clean Code**: DDD, SOLID, comprehensive tests
-8. ✅ **Interactive UI**: Terminal-based asset browser
+8. ✅ **Interactive UI**: Terminal-based investment browser
 9. ✅ **Data Generation**: Realistic test data creation
 10. ✅ **Multiple Strategies**: Risk vs Priority vs Combined optimization
 11. ✅ **Pure Rust**: No external native dependencies
@@ -152,10 +152,10 @@ cargo run --release --bin generate_data
 ## Real-World Application
 
 This system demonstrates production-ready capabilities for:
-- Industrial asset maintenance planning
-- Risk-based inspection optimization
-- Capital budgeting decisions
-- Portfolio optimization under constraints
+- Technology infrastructure planning
+- Business expansion planning
+- Capital investment portfolio optimization
+- Risk-based investment prioritization
 - Multi-criteria decision support
 
 The linear programming approach provides optimal solutions with mathematical guarantees, making it suitable for high-stakes capital allocation decisions.
@@ -167,7 +167,7 @@ The linear programming approach provides optimal solutions with mathematical gua
 Maximize:  Σ value[i,j] × x[i,j]
 Subject to:
   Σ cost[i,j] × x[i,j] ≤ Budget         (budget constraint)
-  Σ x[i,j] ≤ 1  for each asset i        (one alternative per asset)
+  Σ x[i,j] ≤ 1  for each investment i    (one alternative per investment)
   x[i,j] ∈ {0, 1}                        (binary decision)
 ```
 
