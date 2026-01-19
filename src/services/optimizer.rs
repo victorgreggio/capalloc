@@ -298,8 +298,20 @@ mod tests {
         let optimizer = PortfolioOptimizer::new();
         let results = vec![
             create_test_result("IT_SYSTEM_001", "Pilot_Program", 10000.0, 50000.0, 5.0),
-            create_test_result("DATACENTER_002", "Full_Implementation", 15000.0, 80000.0, 8.0),
-            create_test_result("CLOUD_MIGRATION_003", "Partial_Implementation", 20000.0, 60000.0, 6.0),
+            create_test_result(
+                "DATACENTER_002",
+                "Full_Implementation",
+                15000.0,
+                80000.0,
+                8.0,
+            ),
+            create_test_result(
+                "CLOUD_MIGRATION_003",
+                "Partial_Implementation",
+                20000.0,
+                60000.0,
+                6.0,
+            ),
         ];
 
         let solution = optimizer
@@ -315,8 +327,20 @@ mod tests {
         let optimizer = PortfolioOptimizer::new();
         let results = vec![
             create_test_result("IT_SYSTEM_001", "Pilot_Program", 10000.0, 50000.0, 5.0),
-            create_test_result("IT_SYSTEM_001", "Full_Implementation", 50000.0, 90000.0, 9.0),
-            create_test_result("DATACENTER_002", "Partial_Implementation", 8000.0, 40000.0, 4.0),
+            create_test_result(
+                "IT_SYSTEM_001",
+                "Full_Implementation",
+                50000.0,
+                90000.0,
+                9.0,
+            ),
+            create_test_result(
+                "DATACENTER_002",
+                "Partial_Implementation",
+                8000.0,
+                40000.0,
+                4.0,
+            ),
         ];
 
         let solution = optimizer

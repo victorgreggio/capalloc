@@ -44,7 +44,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         "CRM_PLATFORM",
     ];
 
-    let alternatives = ["Defer", "Pilot_Program", "Partial_Implementation", "Full_Implementation"];
+    let alternatives = [
+        "Defer",
+        "Pilot_Program",
+        "Partial_Implementation",
+        "Full_Implementation",
+    ];
 
     let safety_levels = ["Negligible", "Low", "Medium", "High", "Critical"];
 
