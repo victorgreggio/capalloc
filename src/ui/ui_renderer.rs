@@ -88,11 +88,11 @@ pub fn render_list(f: &mut Frame, state: &AppState, area: Rect) {
         })
         .collect();
 
-    let title = if state.optimization_budget.is_some() {
+    let title = if let Some(budget) = state.optimization_budget {
         format!(
             " Asset Alternatives ({}) | Budget: ${} | R=Risk P=Priority C=Combined ",
             state.results.len(),
-            format_money(state.optimization_budget.unwrap()).trim_end_matches(".00"),
+            format_money(budget).trim_end_matches(".00"),
         )
     } else {
         format!(
